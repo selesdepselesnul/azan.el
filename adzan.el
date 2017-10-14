@@ -32,10 +32,15 @@
 	   (lambda (&key data &allow-other-keys)
 	           (store-azan data))))
 
+(defun trim-space (string)
+  (let ((regex "\\`[ \n\t\r]*\\(\\(.\\|\n\\)*?\\)[ \n\t\r]*\\'"))
+    (string-match regex string)
+    (match-string 1 string)))
+
 (defvar timer)
 
 (defun get-time-hh-mm ()
-  (downcase (format-time-string "%l:%M %p")))
+  (trim-space (downcase (format-time-string "%l:%M %p"))))
 
 (defun display-adzan (time)
   (progn
