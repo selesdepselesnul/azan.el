@@ -14,27 +14,28 @@
 
 (defconst api-key "")
 
-(defun store-adzan (data)
+(defun store-azan-to-hash (key data)
+  (puthash key (read-azan key data) adzan))
+
+(defun store-azan (data)
   (progn
-    (puthash "fajr" (read-azan 'fajr data) adzan)
-    (puthash "dhuhr" (read-azan 'dhuhr data) adzan)
-    (puthash "asr" (read-azan 'asr data) adzan)
-    (puthash "maghrib" (read-azan 'maghrib data) adzan)
-    (puthash "isha" (read-azan 'isha data) adzan)))
+    (store-azan-to-hash 'fajr data)
+    (store-azan-to-hash 'dhuhr data)
+    (store-azan-to-hash 'asr data)
+    (store-azan-to-hash 'maghrib data)
+    (store-azan-to-hash 'isha data)))
 
 (request
  (concat "http://muslimsalat.com/bandung.json?key=" api-key) 
  :parser 'json-read
  :success (cl-function
 	   (lambda (&key data &allow-other-keys)
-	           (store-adzan data))))
+	           (store-azan data))))
 
 (defvar timer)
 
 (defun get-time-hh-mm ()
-  (downcase (format-time-string "%I:%M %p")))
-
-(get-time-hh-mm)
+  (downcase (format-time-string "%l:%M %p")))
 
 (defun display-adzan (time)
   (progn
