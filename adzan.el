@@ -1,6 +1,7 @@
 (require 'url)
 (require 'json)
 (require 'request)
+(require 'sound-wav)
 
 (defvar timer)
 (defvar azan (make-hash-table :test 'equal))
@@ -44,6 +45,7 @@
     (cancel-timer timer)
     (switch-to-buffer time)
     (insert time)
+    (sound-wav-play (expand-file-name "azan.wav"))
     (read-string "kill buffer ? (enter)")
     (kill-buffer time)))
 
@@ -58,3 +60,8 @@
 
 (defun set-timer ()
   (setq timer (run-at-time 0 1 'azan-handler)))
+
+(set-timer)
+
+
+
