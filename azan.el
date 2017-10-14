@@ -2,6 +2,7 @@
 (require 'json)
 (require 'request)
 (require 'sound-wav)
+(require 'centered-window-mode)
 
 (defvar timer)
 (defvar azan (make-hash-table :test 'equal))
@@ -44,10 +45,12 @@
   (progn
     (cancel-timer timer)
     (switch-to-buffer time)
+    (centered-window-mode t)
     (insert time)
     (setq buffer-read-only 1)
     (sound-wav-play (expand-file-name "azan.wav"))
     (read-string "kill buffer ? (enter)")
+    (command-execute 'centered-window-mode)
     (kill-buffer time)))
 
 (defun azan-handler ()
@@ -63,6 +66,5 @@
   (setq timer (run-at-time 0 1 'azan-handler)))
 
 (set-timer)
-
 
 
