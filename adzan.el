@@ -45,6 +45,7 @@
     (cancel-timer timer)
     (switch-to-buffer time)
     (insert time)
+    (setq buffer-read-only 1)
     (sound-wav-play (expand-file-name "azan.wav"))
     (read-string "kill buffer ? (enter)")
     (kill-buffer time)))
