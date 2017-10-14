@@ -2,7 +2,8 @@
 (require 'json)
 (require 'request)
 
-(defvar adzan-time)
+(defvar timer)
+(defvar azan (make-hash-table :test 'equal))
 
 (defun read-a-list (key alist)
   (cdr (assoc key alist)))
@@ -10,12 +11,10 @@
 (defun read-azan (key data)
   (read-a-list key (elt (cdr (assoc 'items data )) 0)))
 
-(defvar adzan (make-hash-table :test 'equal))
-
 (defconst api-key "")
 
 (defun store-azan-to-hash (key data)
-  (puthash key (read-azan key data) adzan))
+  (puthash key (read-azan key data) azan))
 
 (defun store-azan (data)
   (progn
@@ -37,12 +36,10 @@
     (string-match regex string)
     (match-string 1 string)))
 
-(defvar timer)
-
 (defun get-time-hh-mm ()
   (trim-space (downcase (format-time-string "%l:%M %p"))))
 
-(defun display-adzan (time)
+(defun display-azan (time)
   (progn
     (cancel-timer timer)
     (switch-to-buffer time)
@@ -50,18 +47,14 @@
     (read-string "kill buffer ? (enter)")
     (kill-buffer time)))
 
-(defun adzan-handler ()
+(defun azan-handler ()
   (let* ((time-now (get-time-hh-mm)))
     (cond
-     ((string= "05:44" time-now) (display-adzan "subuh"))
-     ((string= "11:48" time-now) (display-adzan "dzuhur"))
-     ((string= "15:43" time-now) (display-adzan "ashar"))
-     ((string= "17:43" time-now) (display-adzan "maghrib"))
-     ((string= "21:33" time-now) (display-adzan "isya")))))
+     ((string= (gethash 'fajr azan) time-now) (display-azan "subuh"))
+     ((string= (gethash 'dhuhr azan) time-now) (display-azan "dzuhur"))
+     ((string= (gethash 'asr azan) time-now) (display-azan "ashar"))
+     ((string= (gethash 'maghrib azan) time-now) (display-azan "maghrib"))
+     ((string= (gethash 'isha azan) time-now) (display-azan "isya")))))
 
 (defun set-timer ()
-  (setq timer (run-at-time 0 1 'adzan-handler)))
-
-(set-timer)
-
-
+  (setq timer (run-at-time 0 1 'azan-handler)))
