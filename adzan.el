@@ -1,10 +1,28 @@
+(require 'url)
+(require 'json)
+(require 'request)
+
+(defun read-a-list (key alist)
+  (cdr (assoc key alist)))
+
+(defun read-azan (key data)
+  (read-a-list key (elt (cdr (assoc 'items data )) 0)))
+
+(defvar adzan)
+
+(defconst api-key "")
+
+(request
+ (concat "http://muslimsalat.com/bandung.json?key=" api-key) 
+ :parser 'json-read
+ :success (cl-function
+           (lambda (&key data &allow-other-keys)
+	     (message (read-azan 'fajr data)))))
+
 (defvar timer)
 
 (defun get-time-hh-mm ()
-  (let* ((splitted-time (split-string (format-time-string "%T") ":"))  
-	 (hour (nth 0 splitted-time))
-	 (minute (nth 1 splitted-time)))
-    (concat hour ":" minute)))
+  (format-time-string "%H:%M"))
 
 (defun display-adzan (time)
   (progn
