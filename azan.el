@@ -23,12 +23,8 @@
   (puthash key (read-azan key data) azan))
 
 (defun store-azan (data)
-  (progn
-    (store-azan-to-hash 'fajr data)
-    (store-azan-to-hash 'dhuhr data)
-    (store-azan-to-hash 'asr data)
-    (store-azan-to-hash 'maghrib data)
-    (store-azan-to-hash 'isha data)))
+  (dolist (element '(fajr dhuhr asr maghrib isha))
+    (store-azan-to-hash element data)))
 
 (request
  (concat "http://muslimsalat.com/bandung.json?key=" api-key) 
