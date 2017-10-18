@@ -2,10 +2,14 @@
 (require 'json)
 (require 'request)
 (require 'sound-wav)
-(require 'centered-window-mode)
 
 (defvar timer)
 (defvar azan (make-hash-table :test 'equal))
+(setq is-already-azan '(('fajr . nil)
+			('dhuhr . nil)
+			('asr . nil)
+			('maghrib . nil)
+			('isha . nil)))
 
 (defun read-a-list (key alist)
   (cdr (assoc key alist)))
@@ -41,30 +45,31 @@
 (defun get-time-hh-mm ()
   (trim-space (downcase (format-time-string "%l:%M %p"))))
 
-(defun display-azan (time)
-  (progn
-    (cancel-timer timer)
-    (switch-to-buffer time)
-    (centered-window-mode t)
-    (insert time)
-    (setq buffer-read-only 1)
-    (sound-wav-play (expand-file-name "azan.wav"))
-    (read-string "kill buffer ? (enter)")
-    (command-execute 'centered-window-mode)
-    (kill-buffer time)))
+(defun display-azan (azan time)
+  (setf (alist-get azan is-already-azan) t)
+  (switch-to-buffer time)
+  (insert time)
+  (setq buffer-read-only 1)
+  (sound-wav-play (expand-file-name "azan.wav"))
+  (read-string "kill buffer ? (enter)")
+  (kill-buffer time))
+
+(defun is-azan (current-azan current-time)
+  (and
+   (not (read-a-list current-azan is-already-azan))
+   (string= (gethash current-azan azan) current-time)))
 
 (defun azan-handler ()
-  (let* ((time-now (get-time-hh-mm)))
+  (let ((time-now (get-time-hh-mm)))
     (cond
-     ((string= (gethash 'fajr azan) time-now) (display-azan "subuh"))
-     ((string= (gethash 'dhuhr azan) time-now) (display-azan "dzuhur"))
-     ((string= (gethash 'asr azan) time-now) (display-azan "ashar"))
-     ((string= (gethash 'maghrib azan) time-now) (display-azan "maghrib"))
-     ((string= (gethash 'isha azan) time-now) (display-azan "isya")))))
+     ((is-azan 'fajr time-now) (display-azan 'fajr "subuh"))
+     ((is-azan 'dhuhr time-now) (display-azan 'dhuhr "dzuhur"))
+     ((is-azan 'asr time-now) (display-azan 'asr "ashar"))
+     ((is-azan 'maghrib time-now) (display-azan 'maghrib "maghrib"))
+     ((is-azan 'isha time-now) (display-azan 'isha "isya")))))
 
 (defun set-timer ()
   (setq timer (run-at-time 0 1 'azan-handler)))
 
 (set-timer)
-
 
