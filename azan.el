@@ -5,11 +5,11 @@
 
 (defvar timer)
 (defvar azan (make-hash-table :test 'equal))
-(setq is-already-azan '(('fajr . nil)
-			('dhuhr . nil)
-			('asr . nil)
-			('maghrib . nil)
-			('isha . nil)))
+(defvar is-already-azan '(('fajr . nil)
+			  ('dhuhr . nil)
+			  ('asr . nil)
+			  ('maghrib . nil)
+			  ('isha . nil)))
 
 (defun read-a-list (key alist)
   (cdr (assoc key alist)))
@@ -68,4 +68,3 @@
   (setq timer (run-at-time 0 1 'azan-handler)))
 
 (set-timer)
-
