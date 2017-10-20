@@ -26,13 +26,6 @@
   (dolist (element '(fajr dhuhr asr maghrib isha))
     (store-azan-to-hash element data)))
 
-(request
-  (concat "http://muslimsalat.com/bandung.json?key=" api-key) 
-  :parser 'json-read
-  :success (cl-function
- 	   (lambda (&key data &allow-other-keys)
- 	           (store-azan data))))
-
 (defun trim-space (string)
   (let ((regex "\\`[ \n\t\r]*\\(\\(.\\|\n\\)*?\\)[ \n\t\r]*\\'"))
     (string-match regex string)
@@ -67,4 +60,15 @@
 (defun set-timer ()
   (setq timer (run-at-time 0 1 'azan-handler)))
 
-(set-timer)
+(defun selesdepselesnul/azan ()
+  (interactive)
+  (request
+  (concat "http://muslimsalat.com/bandung.json?key=" api-key) 
+  :parser 'json-read
+  :success (cl-function
+	    (lambda (&key data &allow-other-keys)
+	      (progn
+		(store-azan data)
+		(set-timer))))))
+
+
