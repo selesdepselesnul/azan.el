@@ -4,13 +4,13 @@
 (require 'request)
 (require 'sound-wav)
 
-(defvar timer)
+(defvar timer nil)
 (defvar azan (make-hash-table :test 'equal))
-(defvar is-already-azan '(('fajr . nil)
-			  ('dhuhr . nil)
-			  ('asr . nil)
-			  ('maghrib . nil)
-			  ('isha . nil)))
+(defvar is-already-azan '(('fajr)
+			  ('dhuhr)
+			  ('asr)
+			  ('maghrib)
+			  ('isha)))
 (defvar api-key "")
 
 (defun read-a-list (key alist)
@@ -60,15 +60,20 @@
 (defun set-timer ()
   (setq timer (run-at-time 0 1 'azan-handler)))
 
+(defun enable-azan ()
+  (request
+    (concat "http://muslimsalat.com/bandung.json?key=" api-key) 
+    :parser 'json-read
+    :success (cl-function
+	       (lambda (&key data &allow-other-keys)
+	         (progn
+		   (store-azan data)
+		   (set-timer))))))
+
+(defun disable-azan ()
+  (cancel-timer timer)
+  (setq timer nil))
+
 (defun selesdepselesnul/azan ()
   (interactive)
-  (request
-  (concat "http://muslimsalat.com/bandung.json?key=" api-key) 
-  :parser 'json-read
-  :success (cl-function
-	    (lambda (&key data &allow-other-keys)
-	      (progn
-		(store-azan data)
-		(set-timer))))))
-
-
+  (if (null timer) (enable-azan) (disable-azan)))
