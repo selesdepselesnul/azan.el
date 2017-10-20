@@ -11,6 +11,7 @@
 			  ('asr . nil)
 			  ('maghrib . nil)
 			  ('isha . nil)))
+(defvar api-key "")
 
 (defun read-a-list (key alist)
   (cdr (assoc key alist)))
@@ -18,14 +19,19 @@
 (defun read-azan (key data)
   (read-a-list key (elt (cdr (assoc 'items data )) 0)))
 
-(defconst api-key "")
-
 (defun store-azan-to-hash (key data)
   (puthash key (read-azan key data) azan))
 
 (defun store-azan (data)
   (dolist (element '(fajr dhuhr asr maghrib isha))
     (store-azan-to-hash element data)))
+
+(request
+  (concat "http://muslimsalat.com/bandung.json?key=" api-key) 
+  :parser 'json-read
+  :success (cl-function
+ 	   (lambda (&key data &allow-other-keys)
+ 	           (store-azan data))))
 
 (defun trim-space (string)
   (let ((regex "\\`[ \n\t\r]*\\(\\(.\\|\n\\)*?\\)[ \n\t\r]*\\'"))
